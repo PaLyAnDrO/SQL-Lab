@@ -20,31 +20,36 @@ GROUP BY
 	`Sales Period`, `Month`;
 
 
-SELECT
-	product_id AS "Product ID",
-    product_name AS "Product name",
-    price AS "Product price",
-    amount AS "Product Quantity",
-    ROUND(price * amount, 2) AS "Total amount"
-FROM
-	product
-HAVING 
-	(price * amount) > 50000;
+SELECT  
+	p.product_id AS "Product ID",  
+	p.product_name AS "Product name",     
+    p.price AS "Product price",
+    sum(o.quantity) AS "Product quantity",
+    ROUND(SUM(p.price * o.quantity), 2) AS "Total amount" 
+FROM  
+	orders AS o 
+JOIN  
+	product AS p ON o.product_id = p.product_id 
+GROUP BY  
+	`Product ID`
+ORDER BY
+	`Product ID`;
 
-SELECT
-	LPAD(c.customer_id, 3, '0') AS "Customer ID",
+
+SELECT 
+    c.customer_id AS "Customer ID",
     c.last_name AS "Customer last name",
     c.first_name AS "Customer first name",
-    ROUND(SUM(o.quantity * p.price), 2) AS "Total amount"
-FROM
-	customer AS c
-JOIN
-	invoice AS i ON c.customer_id = i.customer_id
-JOIN
-	orders AS o ON o.invoice_id = i.invoice_id
-JOIN
-	product AS p ON o.product_id = p.product_id
-GROUP BY
-	`Customer ID`, c.last_name, c.first_name
-ORDER BY
-	`Total amount` DESC;
+    ROUND(SUM(o.quantity * p.price), 2) AS "Total Amount"
+FROM 
+    customer c
+JOIN 
+    invoice i ON c.customer_id = i.customer_id
+JOIN 
+    orders o ON i.invoice_id = o.invoice_id
+JOIN 
+    product p ON o.product_id = p.product_id
+GROUP BY 
+    c.customer_id, c.last_name, c.first_name
+ORDER BY 
+    `Total Amount` DESC LIMIT 10;
